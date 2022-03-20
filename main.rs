@@ -1,7 +1,6 @@
-extern crate log;
 extern crate yaml_rust;
 
-use log::info;
+use chrono::{Utc};
 use std::fmt;
 use std::fs::File;
 use std::io::prelude::*;
@@ -43,10 +42,19 @@ impl WebsiteConfig {
         }
         !code.contains(&self.out_of_stock_text)
     }
+
+    fn clone(&self) -> WebsiteConfig {
+        WebsiteConfig {
+            website_url: self.website_url.clone(),
+            website_name: self.website_name.clone(),
+            update_interval: self.update_interval,
+            out_of_stock_text: self.out_of_stock_text.clone(),
+        }
+    }
 }
 
 fn get_website(url: String) -> String {
-    println!("Making request to {}", url);
+    println!("[{}]  Making request to {}", Utc::now(), url);
     let res = reqwest::blocking::get(url.to_string());
     match res {
         Ok(e) => return e.text().unwrap(),
@@ -55,6 +63,22 @@ fn get_website(url: String) -> String {
     println!("Error!");
     return "".to_string();
 }
+
+fn send_webhook(url: String, site: WebsiteConfig) {
+    println!("[{}]  Sending webhook", Utc::now());
+    let client = reqwest::blocking::Client::new();
+
+    let msg: String = "{\"username\": \"🖥  - Monitor\", \"embeds\": [ {\"title\": \"Monitor triggered\",\"color\": 1841963, \"description\": \"The product is available on ".to_owned() + &site.website_name.to_owned() + "\",\"url\": \"" + &site.website_url.to_owned() + "\",\"footer\": {\"text\": \"built by peet with ❤️\"}}]}";
+
+    println!("{}" , msg);
+
+    let res = client.post(url)
+        .header("Content-Type", "application/json")
+        .body(msg)
+        .send();
+    println!("[{}]  Response: {}", Utc::now(), res.unwrap().text().unwrap());
+}
+
 
 fn load_yaml_file(file: &str) -> Yaml {
     let mut file = File::open(file).expect("Unable to open config.yaml");
@@ -67,12 +91,12 @@ fn load_yaml_file(file: &str) -> Yaml {
 }
 
 fn main() {
-    env_logger::init();
-
     let file = "config.yaml";
     let config = load_yaml_file(file);
-    let websites = config["Websites"].clone();
+    let websites = config["websites"].clone();
     let mut website_configs: Vec<WebsiteConfig> = vec![];
+
+    let webhook_url = config["webhook"].as_str().unwrap().to_string();
 
     match websites {
         yaml::Yaml::Array(ref v) => {
@@ -91,14 +115,21 @@ fn main() {
     };
 
     for site in website_configs {
-        info!("Starting monitor for {}", site.website_name);
-        thread::spawn(move || loop {
-            if site.is_in_stock() {
-                println!("Is in stock on {}!", site.website_url)
+        println!("✨ Starting monitor for {}", site.website_name);
+        let url = webhook_url.clone();
+        // let update_interval = site.clone().update_interval.try_into().unwrap();
+        thread::spawn(move || {
+            thread::sleep(Duration::from_millis(1));
+            loop {
+                // let clone = site.clone();
+                if site.is_in_stock() {
+                    // println!("🚀 Is in stock on {}!", site.website_url);
+                    send_webhook(url.to_string(), site.clone());
+                }
+                thread::sleep(Duration::from_millis(
+                    site.update_interval.try_into().unwrap(),
+                ));
             }
-            thread::sleep(Duration::from_millis(
-                site.update_interval.try_into().unwrap(),
-            ));
         });
     }
     loop {}
