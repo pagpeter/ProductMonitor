@@ -38,6 +38,9 @@ impl fmt::Display for WebsiteConfig {
 impl WebsiteConfig {
     fn is_in_stock(&self) -> bool {
         let code: String = get_website((self.website_url).to_string());
+        if code == "" {
+            return false;
+        }
         !code.contains(&self.out_of_stock_text)
     }
 }
@@ -83,7 +86,7 @@ fn main() {
             }
         }
         _ => {
-            println!("lol {:?}", websites);
+            println!("Error: {:?}", websites);
         }
     };
 
