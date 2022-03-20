@@ -1,0 +1,38 @@
+# webhook: 'https://discord.com/api/webhooks/954524374432616480/fxpLDqahuhYBcONd77kHPvrqXeQYy1ca18BksIciOQzLI2NVyXBkccG-QJVa3SpCxu8-'
+Websites:
+  - URL: 'https://www.okdo.com/de/p/raspberry-pi-4-model-b-board-mit-2gb-lpddr4-sdram/'
+    name: 'okdo.com'
+    no_stock_indicator: '<span class="c-stock-level c-stock-level--low">Ausverkauft</span>'
+    interval: 10000
+  - URL: 'https://www.berrybase.de/detail/index/sArticle/5915'
+    name: 'berrybase.de'
+    no_stock_indicator: 'Dieser Artikel steht derzeit nicht zur Verfügung!'
+    interval: 10000
+  - URL: 'https://www.rasppishop.de/Raspberry-Pi-4-Modell-B-2GB-SDRAM'
+    name: 'rasppishop.de'
+    no_stock_indicator: 'Produkt vergriffen'
+    interval: 10000
+  # - URL: 'https://buyzero.de/products/raspberry-pi-4b?src=raspberrypi&variant=28034031517798'
+  #   name: 'buyzero.de'
+  #   no_stock_indicator: 'Ausverkauft'
+  #   interval: 10000
+  - URL: 'https://www.reichelt.de/DE/DE/raspberry-pi-4-b-4x-1-5-ghz-2-gb-ram-wlan-bt-rasp-pi-4-b-2gb-p259919.html?r=1&src=raspberrypi'
+    name: 'reichelt.de'
+    no_stock_indicator: 'z.Zt. ausverkauft'
+    interval: 10000
+  - URL: 'https://www.welectron.com/Raspberry-Pi-4-Modell-B-1-GB-RAM'
+    name: 'welectron.com'
+    no_stock_indicator: 'nicht lieferbar'
+    interval: 10000
+  - URL: 'https://shop.funk24.net/detail/index/sArticle/1514?src=raspberrypi'
+    name: 'funk24.net'
+    no_stock_indicator: 'Dieser Artikel steht derzeit nicht zur Verfügung!'
+    interval: 10000
+  - URL: 'https://www.pi-shop.ch/raspberry-pi-4-model-b-2gb?src=raspberrypi'
+    name: 'pi-shop.ch'
+    no_stock_indicator: 'Zur Zeit nicht an Lager'
+    interval: 10000
+  - URL: 'https://www.pishop.us/product/raspberry-pi-4-model-b-2gb/'
+    name: 'pishop.us'
+    no_stock_indicator: 'Out of stock'
+    interval: 10000

@@ -1,0 +1,16 @@
+[package]
+name = "monitor"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "0.11", features = ["blocking"] }
+yaml-rust = "0.4"
+log = "0.4.0"
+env_logger = "0.8.4"
+
+[[bin]]
+name = "monitor"
+path = "main.rs"
