@@ -59,7 +59,7 @@ impl WebsiteConfig {
 }
 
 fn load_yaml_file(file: &Path) -> Result<Config> {
-    let file = read_to_string(file).context("Unable to open config.yaml")?;
+    let file = read_to_string(file).context(format!("Unable to open {}", file.display()))?;
     Ok(serde_yaml::from_str(&file)?)
 }
 
