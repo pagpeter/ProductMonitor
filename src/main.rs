@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use log::info;
+use log::{error, info};
 use reqwest::Client;
 use serde::Deserialize;
 use serde_json::json;
@@ -79,7 +79,7 @@ async fn main() -> Result<()> {
                 if site.is_in_stock(&client).await {
                     println!("🚀 Is in stock on {}!", site.url);
                     if site.send_webhook(&webhook, &client).await.is_err() {
-                        info!("Failed to send webhook");
+                        error!("Failed to send webhook");
                     }
                 }
                 tokio::time::sleep(Duration::from_millis(site.interval)).await;
