@@ -1,8 +1,9 @@
 use anyhow::{Context, Result};
-use chrono::Utc;
+use log::info;
 use reqwest::Client;
 use serde::Deserialize;
 use serde_json::json;
+use simple_logger::SimpleLogger;
 use std::fs::read_to_string;
 use std::path::Path;
 use std::sync::Arc;
@@ -31,7 +32,7 @@ impl WebsiteConfig {
     }
 
     async fn send_webhook(&self, url: &str, client: &Client) -> Result<()> {
-        println!("[{}]  Sending webhook", Utc::now());
+        info!("Sending webhook");
         let msg = json!({
             "username": "🖥  - Monitor",
             "embeds": [{"title": "Monitor triggered", "color": 1841963,
@@ -40,12 +41,12 @@ impl WebsiteConfig {
         });
         println!("{}", msg);
         let res = client.post(url).json(&msg).send().await?;
-        println!("[{}]  Response: {}", Utc::now(), res.text().await?);
+        info!("Response: {}", res.text().await?);
         Ok(())
     }
 
     async fn get_website(&self, client: &Client) -> Result<String> {
-        println!("[{}]  Making request to {}", Utc::now(), self.url);
+        info!("Making request to {}", self.url);
         let res = client.get(&self.url).send().await?;
         Ok(res.text().await?)
     }
@@ -65,6 +66,7 @@ fn load_yaml_file(file: &Path) -> Result<Config> {
 #[tokio::main]
 async fn main() -> Result<()> {
     const FILE: &str = "config.yaml";
+    SimpleLogger::new().init()?;
     let config = load_yaml_file(Path::new(FILE))?;
     let client = Client::builder().timeout(Duration::from_secs(5)).build()?;
     let webhook = Arc::new(config.webhook);
@@ -77,7 +79,7 @@ async fn main() -> Result<()> {
                 if site.is_in_stock(&client).await {
                     println!("🚀 Is in stock on {}!", site.url);
                     if site.send_webhook(&webhook, &client).await.is_err() {
-                        println!("Failed to send webhook");
+                        info!("Failed to send webhook");
                     }
                 }
                 tokio::time::sleep(Duration::from_millis(site.interval)).await;
