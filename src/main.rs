@@ -9,6 +9,12 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
 
+#[derive(Deserialize)]
+struct Config {
+    webhook: String,
+    websites: Vec<WebsiteConfig>,
+}
+
 #[derive(Clone, Deserialize)]
 struct WebsiteConfig {
     // URL to make requests to
@@ -19,7 +25,7 @@ struct WebsiteConfig {
     name: String,
 
     // Time between requests in millisecons
-    interval: u64, // Better to use unsigned integer to add an extra layer of input validation
+    interval: u64,
 
     // String in HTML that will only appear when product is out of stock
     no_stock_indicator: String,
@@ -28,7 +34,7 @@ struct WebsiteConfig {
 impl WebsiteConfig {
     async fn is_in_stock(&self, client: &Client) -> bool {
         let code = self.get_website(client).await;
-        code.map_or(false, |fine| !fine.contains(&self.no_stock_indicator)) // You don't have to do this
+        code.map_or(false, |fine| !fine.contains(&self.no_stock_indicator))
     }
 
     async fn send_webhook(&self, url: &str, client: &Client) -> Result<()> {
@@ -50,12 +56,6 @@ impl WebsiteConfig {
         let res = client.get(&self.url).send().await?;
         Ok(res.text().await?)
     }
-}
-
-#[derive(Deserialize)]
-struct Config {
-    webhook: String,
-    websites: Vec<WebsiteConfig>,
 }
 
 fn load_yaml_file(file: &Path) -> Result<Config> {
