@@ -15,7 +15,7 @@ struct Config {
     websites: Vec<WebsiteConfig>,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 struct WebsiteConfig {
     // URL to make requests to
     #[serde(rename = "URL")]
@@ -68,27 +68,30 @@ async fn main() -> Result<()> {
     const FILE: &str = "config.yaml";
     SimpleLogger::new().init()?;
     let config = load_yaml_file(Path::new(FILE))?;
-    let client = Client::builder().timeout(Duration::from_secs(5)).build()?;
+    let client = Client::builder().timeout(Duration::from_secs(27)).build()?;
     let webhook = Arc::new(config.webhook);
+    let mut handles = Vec::new();
     for site in config.websites {
         println!("✨ Starting monitor for {}", site.name);
         let webhook = Arc::clone(&webhook);
         let client = client.clone();
-        tokio::spawn(async move {
+        handles.push(tokio::spawn(async move {
             let mut currently_stocked = false;
             loop {
                 let tmp = site.is_in_stock(&client).await;
                 if tmp && !currently_stocked {
                     println!("🚀 Is in stock on {}!", site.url);
-                    currently_stocked = true;
                     if site.send_webhook(&webhook, &client).await.is_err() {
                         error!("Failed to send webhook");
                     }
-                } 
+                }
                 currently_stocked = tmp;
                 tokio::time::sleep(Duration::from_millis(site.interval)).await;
             }
-        });
+        }));
     }
-    loop {}
+    for handle in handles {
+        handle.await?;
+    }
+    Ok(())
 }
