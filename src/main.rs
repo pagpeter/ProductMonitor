@@ -68,7 +68,7 @@ async fn main() -> Result<()> {
     const FILE: &str = "config.yaml";
     SimpleLogger::new().init()?;
     let config = load_yaml_file(Path::new(FILE))?;
-    let client = Client::builder().timeout(Duration::from_secs(5)).build()?;
+    let client = Client::builder().timeout(Duration::from_secs(27)).build()?;
     let webhook = Arc::new(config.webhook);
     let mut handles = Vec::new();
     for site in config.websites {
