@@ -76,7 +76,7 @@ async fn main() -> Result<()> {
         let webhook = Arc::clone(&webhook);
         let client = client.clone();
         handles.push(tokio::spawn(async move {
-            let mut currently_stocked = true;
+            let mut currently_stocked = false;
             loop {
                 let tmp = site.is_in_stock(&client).await;
                 if tmp && !currently_stocked {
