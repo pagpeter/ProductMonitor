@@ -76,19 +76,16 @@ async fn main() -> Result<()> {
         let webhook = Arc::clone(&webhook);
         let client = client.clone();
         handles.push(tokio::spawn(async move {
-            let mut warn = true;
+            let mut currently_stocked = true;
             loop {
                 let tmp = site.is_in_stock(&client).await;
-                if !tmp {
-                    warn = true;
-                }
-                if tmp && warn {
-                    warn = false;
+                if tmp && !currently_stocked {
                     println!("🚀 Is in stock on {}!", site.url);
                     if site.send_webhook(&webhook, &client).await.is_err() {
                         error!("Failed to send webhook");
                     }
                 }
+                currently_stocked = tmp;
                 tokio::time::sleep(Duration::from_millis(site.interval)).await;
             }
         }));
