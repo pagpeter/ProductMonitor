@@ -15,7 +15,7 @@ struct Config {
     websites: Vec<WebsiteConfig>,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 struct WebsiteConfig {
     // URL to make requests to
     #[serde(rename = "URL")]
